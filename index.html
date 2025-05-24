@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Text to Speech with Download</title>
+</head>
+<body>
+  <h1>Text to Speech</h1>
+  <textarea id="text" rows="5" cols="40">Type your text here...</textarea><br>
+  <button onclick="speak()">Speak</button>
+  <button onclick="download()">Download Voice</button>
+
+  <script src="mespeak.js"></script>
+  <script>
+    // Configure meSpeak
+    meSpeak.loadConfig("mespeak_config.json"); // This must exist or you can configure inline
+    meSpeak.loadVoice("voices/en/en-us.json");
+
+    function speak() {
+      const text = document.getElementById("text").value;
+      meSpeak.speak(text, { amplitude: 100, wordgap: 0, pitch: 50, speed: 175 });
+    }
+
+    function download() {
+      const text = document.getElementById("text").value;
+      const wav = meSpeak.speak(text, { rawdata: "buffer" });
+      const blob = new Blob([wav], { type: "audio/wav" });
+      const url = URL.createObjectURL(blob);
+
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "speech.wav";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,1 @@
+// Download the real mespeak.js from http://www.masswerk.at/mespeak/
