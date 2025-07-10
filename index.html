@@ -1,39 +1,643 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Text to Speech with Download</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YouTube Live Streamer</title>
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #ff0000 0%, #cc0000 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            padding: 40px;
+        }
+
+        .upload-section {
+            margin-bottom: 40px;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            color: #333;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .upload-item {
+            background: #f8f9fa;
+            border: 2px dashed #dee2e6;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .upload-item:hover {
+            border-color: #ff0000;
+            background: #fff5f5;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .upload-item.dragover {
+            border-color: #ff0000;
+            background: #fff5f5;
+            transform: scale(1.02);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+        }
+
+        input[type="file"],
+        input[type="text"] {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        input[type="file"]:focus,
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #ff0000;
+            box-shadow: 0 0 0 3px rgba(255, 0, 0, 0.1);
+        }
+
+        .file-info {
+            margin-top: 10px;
+            padding: 10px;
+            background: #e8f5e8;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            color: #2d5a2d;
+            display: none;
+        }
+
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #ff0000 0%, #cc0000 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(255, 0, 0, 0.3);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+            margin-left: 10px;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+            transform: translateY(-2px);
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+            margin-left: 10px;
+        }
+
+        .btn-success:hover {
+            background: #218838;
+            transform: translateY(-2px);
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+            margin-left: 10px;
+        }
+
+        .btn-danger:hover {
+            background: #c82333;
+            transform: translateY(-2px);
+        }
+
+        .remove-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            cursor: pointer;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .remove-btn:hover {
+            background: #c82333;
+            transform: scale(1.1);
+        }
+
+        .controls {
+            text-align: center;
+            margin: 30px 0;
+        }
+
+        .status-section {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 30px;
+            margin-top: 30px;
+        }
+
+        .stream-status {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 15px;
+            border-left: 4px solid #28a745;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .stream-status.error {
+            border-left-color: #dc3545;
+        }
+
+        .stream-status.streaming {
+            border-left-color: #ff0000;
+        }
+
+        .stream-status.stopped {
+            border-left-color: #6c757d;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .status-badge.streaming {
+            background: #ff0000;
+            color: white;
+        }
+
+        .status-badge.error {
+            background: #dc3545;
+            color: white;
+        }
+
+        .status-badge.completed {
+            background: #28a745;
+            color: white;
+        }
+
+        .status-badge.stopped {
+            background: #6c757d;
+            color: white;
+        }
+
+        .status-badge.preparing {
+            background: #ffc107;
+            color: #212529;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #ff0000;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .icon {
+            width: 20px;
+            height: 20px;
+            fill: currentColor;
+        }
+
+        .drag-drop-text {
+            text-align: center;
+            color: #6c757d;
+            font-style: italic;
+            margin-top: 10px;
+        }
+    </style>
 </head>
 <body>
-  <h1>Text to Speech</h1>
-  <textarea id="text" rows="5" cols="40">Type your text here...</textarea><br>
-  <button onclick="speak()">Speak</button>
-  <button onclick="download()">Download Voice</button>
+    <div class="container">
+        <div class="header">
+            <h1>🔴 YouTube Live Streamer</h1>
+            <p>Upload multiple videos and stream them simultaneously to YouTube Live</p>
+        </div>
 
-  <script src="mespeak.js"></script>
-  <script>
-    // Configure meSpeak
-    meSpeak.loadConfig("mespeak_config.json"); // This must exist or you can configure inline
-    meSpeak.loadVoice("voices/en/en-us.json");
+        <div class="main-content">
+            <div class="upload-section">
+                <h2 class="section-title">
+                    <svg class="icon" viewBox="0 0 24 24">
+                        <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z" />
+                    </svg>
+                    Video Uploads
+                </h2>
+                
+                <div id="upload-items">
+                    <!-- Upload items will be dynamically added here -->
+                </div>
 
-    function speak() {
-      const text = document.getElementById("text").value;
-      meSpeak.speak(text, { amplitude: 100, wordgap: 0, pitch: 50, speed: 175 });
-    }
+                <div class="controls">
+                    <button type="button" class="btn btn-secondary" onclick="addUploadItem()">
+                        + Add Another Video
+                    </button>
+                    <button type="button" class="btn btn-primary" onclick="startStreaming()">
+                        🚀 Start Streaming
+                    </button>
+                    <button type="button" class="btn btn-success" onclick="refreshStatus()">
+                        🔄 Refresh Status
+                    </button>
+                    <button type="button" class="btn btn-danger" onclick="stopAllStreams()">
+                        ⏹️ Stop All Streams
+                    </button>
+                </div>
 
-    function download() {
-      const text = document.getElementById("text").value;
-      const wav = meSpeak.speak(text, { rawdata: "buffer" });
-      const blob = new Blob([wav], { type: "audio/wav" });
-      const url = URL.createObjectURL(blob);
+                <div class="loading" id="loading">
+                    <div class="spinner"></div>
+                    <p>Processing uploads and starting streams...</p>
+                </div>
+            </div>
 
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "speech.wav";
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-    }
-  </script>
+            <div class="status-section">
+                <h2 class="section-title">
+                    <svg class="icon" viewBox="0 0 24 24">
+                        <path d="M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M12,4A8,8 0 0,1 20,12A8,8 0 0,1 12,20A8,8 0 0,1 4,12A8,8 0 0,1 12,4M11,16.5L18,9.5L16.59,8.09L11,13.67L7.91,10.59L6.5,12L11,16.5Z" />
+                    </svg>
+                    Stream Status
+                </h2>
+                <div id="stream-status">
+                    <p style="text-align: center; color: #6c757d; font-style: italic;">No active streams</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let uploadItemCount = 0;
+
+        // Initialize with one upload item
+        document.addEventListener('DOMContentLoaded', function() {
+            addUploadItem();
+            refreshStatus();
+        });
+
+        function addUploadItem() {
+            uploadItemCount++;
+            const uploadItems = document.getElementById('upload-items');
+            
+            const itemDiv = document.createElement('div');
+            itemDiv.className = 'upload-item';
+            itemDiv.id = `upload-item-${uploadItemCount}`;
+            
+            itemDiv.innerHTML = `
+                <button type="button" class="remove-btn" onclick="removeUploadItem(${uploadItemCount})" title="Remove this upload">×</button>
+                
+                <div class="form-group">
+                    <label for="video-${uploadItemCount}">Video File (MP4, AVI, MOV, MKV)</label>
+                    <input type="file" id="video-${uploadItemCount}" name="video" accept=".mp4,.avi,.mov,.mkv" onchange="handleFileSelect(${uploadItemCount})">
+                    <div class="file-info" id="file-info-${uploadItemCount}"></div>
+                    <div class="drag-drop-text">Or drag and drop your video file here</div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="stream-key-${uploadItemCount}">YouTube Stream Key *</label>
+                        <input type="text" id="stream-key-${uploadItemCount}" name="stream-key" placeholder="Enter your YouTube stream key" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="title-${uploadItemCount}">Stream Title (Optional)</label>
+                        <input type="text" id="title-${uploadItemCount}" name="title" placeholder="Enter stream title">
+                    </div>
+                </div>
+            `;
+            
+            uploadItems.appendChild(itemDiv);
+            
+            // Add drag and drop functionality
+            setupDragAndDrop(itemDiv, uploadItemCount);
+        }
+
+        function removeUploadItem(itemId) {
+            const item = document.getElementById(`upload-item-${itemId}`);
+            if (item) {
+                item.remove();
+            }
+            
+            // Ensure at least one upload item exists
+            const remainingItems = document.querySelectorAll('.upload-item');
+            if (remainingItems.length === 0) {
+                addUploadItem();
+            }
+        }
+
+        function setupDragAndDrop(element, itemId) {
+            const fileInput = element.querySelector(`#video-${itemId}`);
+            
+            element.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                element.classList.add('dragover');
+            });
+            
+            element.addEventListener('dragleave', function(e) {
+                e.preventDefault();
+                element.classList.remove('dragover');
+            });
+            
+            element.addEventListener('drop', function(e) {
+                e.preventDefault();
+                element.classList.remove('dragover');
+                
+                const files = e.dataTransfer.files;
+                if (files.length > 0) {
+                    fileInput.files = files;
+                    handleFileSelect(itemId);
+                }
+            });
+        }
+
+        function handleFileSelect(itemId) {
+            const fileInput = document.getElementById(`video-${itemId}`);
+            const fileInfo = document.getElementById(`file-info-${itemId}`);
+            
+            if (fileInput.files.length > 0) {
+                const file = fileInput.files[0];
+                const fileSize = (file.size / (1024 * 1024)).toFixed(2);
+                fileInfo.innerHTML = `
+                    <strong>Selected:</strong> ${file.name}<br>
+                    <strong>Size:</strong> ${fileSize} MB<br>
+                    <strong>Type:</strong> ${file.type}
+                `;
+                fileInfo.style.display = 'block';
+            } else {
+                fileInfo.style.display = 'none';
+            }
+        }
+
+        async function startStreaming() {
+            const uploadItems = document.querySelectorAll('.upload-item');
+            const formData = new FormData();
+            
+            let hasValidUploads = false;
+            
+            uploadItems.forEach((item, index) => {
+                const itemId = item.id.split('-')[2];
+                const videoInput = document.getElementById(`video-${itemId}`);
+                const streamKeyInput = document.getElementById(`stream-key-${itemId}`);
+                const titleInput = document.getElementById(`title-${itemId}`);
+                
+                if (videoInput.files.length > 0 && streamKeyInput.value.trim()) {
+                    formData.append('videos', videoInput.files[0]);
+                    formData.append('stream_keys', streamKeyInput.value.trim());
+                    formData.append('titles', titleInput.value.trim() || `Stream ${index + 1}`);
+                    hasValidUploads = true;
+                }
+            });
+            
+            if (!hasValidUploads) {
+                showAlert('Please select at least one video file and provide a stream key.', 'error');
+                return;
+            }
+            
+            const loading = document.getElementById('loading');
+            loading.style.display = 'block';
+            
+            try {
+                const response = await fetch('/api/streaming/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    showAlert('Streams started successfully!', 'success');
+                    setTimeout(refreshStatus, 2000);
+                } else {
+                    showAlert(`Error: ${result.error}`, 'error');
+                }
+            } catch (error) {
+                showAlert(`Network error: ${error.message}`, 'error');
+            } finally {
+                loading.style.display = 'none';
+            }
+        }
+
+        async function refreshStatus() {
+            try {
+                const response = await fetch('/api/streaming/streams');
+                const result = await response.json();
+                
+                const statusDiv = document.getElementById('stream-status');
+                
+                if (result.streams && result.streams.length > 0) {
+                    statusDiv.innerHTML = result.streams.map(stream => `
+                        <div class="stream-status ${stream.status}">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <div>
+                                    <strong>${stream.title}</strong>
+                                    <span class="status-badge ${stream.status}">${stream.status}</span>
+                                </div>
+                                <div>
+                                    ${stream.status === 'streaming' ? 
+                                        `<button class="btn btn-danger" onclick="stopStream('${stream.stream_id}')">Stop</button>` : 
+                                        ''
+                                    }
+                                </div>
+                            </div>
+                            <div style="margin-top: 10px; font-size: 0.9rem; color: #6c757d;">
+                                Stream ID: ${stream.stream_id}<br>
+                                ${stream.start_time ? `Duration: ${Math.floor(stream.duration / 60)}m ${Math.floor(stream.duration % 60)}s` : ''}
+                            </div>
+                        </div>
+                    `).join('');
+                } else {
+                    statusDiv.innerHTML = '<p style="text-align: center; color: #6c757d; font-style: italic;">No active streams</p>';
+                }
+            } catch (error) {
+                console.error('Error refreshing status:', error);
+            }
+        }
+
+        async function stopStream(streamId) {
+            try {
+                const response = await fetch(`/api/streaming/streams/${streamId}/stop`, {
+                    method: 'POST'
+                });
+                
+                if (response.ok) {
+                    showAlert('Stream stopped successfully!', 'success');
+                    setTimeout(refreshStatus, 1000);
+                } else {
+                    const result = await response.json();
+                    showAlert(`Error stopping stream: ${result.error}`, 'error');
+                }
+            } catch (error) {
+                showAlert(`Network error: ${error.message}`, 'error');
+            }
+        }
+
+        async function stopAllStreams() {
+            try {
+                const response = await fetch('/api/streaming/streams/stop-all', {
+                    method: 'POST'
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    showAlert(result.message, 'success');
+                    setTimeout(refreshStatus, 1000);
+                } else {
+                    showAlert(`Error: ${result.error}`, 'error');
+                }
+            } catch (error) {
+                showAlert(`Network error: ${error.message}`, 'error');
+            }
+        }
+
+        function showAlert(message, type) {
+            // Remove existing alerts
+            const existingAlerts = document.querySelectorAll('.alert');
+            existingAlerts.forEach(alert => alert.remove());
+            
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type}`;
+            alertDiv.textContent = message;
+            
+            const mainContent = document.querySelector('.main-content');
+            mainContent.insertBefore(alertDiv, mainContent.firstChild);
+            
+            // Auto-remove alert after 5 seconds
+            setTimeout(() => {
+                alertDiv.remove();
+            }, 5000);
+        }
+
+        // Auto-refresh status every 10 seconds
+        setInterval(refreshStatus, 10000);
+    </script>
 </body>
 </html>
+
